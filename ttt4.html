@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title></title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f7f7f7;
+      }
+
+      h1 {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      .curr_player {
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        color: #555;
+        padding: 10px 20px;
+        border: 2px solid #ddd;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 120px);
+        grid-gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .square {
+        width: 120px;
+        height: 120px;
+        background-color: #fff;
+        border: 2px solid #ddd;
+        font-size: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 12px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s, transform 0.3s;
+      }
+
+      .square:hover {
+        background-color: #f0f0f0;
+        transform: scale(1.05);
+      }
+
+      .square:active {
+        background-color: #e6e6e6;
+        transform: scale(0.98);
+      }
+
+      button {
+        padding: 10px 30px;
+        font-size: 1.2rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+      }
+
+      button:active {
+        background-color: #003f7f;
+        transform: scale(0.98);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tic Tac Toe!</h1>
+    <div class="curr_player"><span id="player_symbol">X</span></div>
+    <div class="grid">
+      <script>
+        let gameOver = false;
+        const NUM_SQUARES = 9;
+        for (i = 0; i < NUM_SQUARES; i++) {
+          id = "sq" + i;
+          document.write("<div class='square' id='" + id + "'></div>");
+        }
+
+        curPlayer = "X";
+        if (Math.random() >= 0.5) {
+          curPlayer = "O";
+        }
+
+        const squares = document.querySelectorAll(".square");
+        const what_player_is_it = document.getElementById("player_symbol");
+
+        window.onload = function () {
+          what_player_is_it.innerHTML = "It's player " + curPlayer + "'s turn";
+        };
+
+        function resetGame() {
+          squares.forEach((square) => {
+            square.innerHTML = "";
+            square.style.pointerEvents = "auto";
+          });
+          curPlayer = "X";
+          if (Math.random() >= 0.5) {
+            curPlayer = "O";
+          }
+          what_player_is_it.innerHTML = "It's player " + curPlayer + "'s turn";
+          gameOver = false;
+        }
+
+        squares.forEach((square, index) => {
+          square.addEventListener("click", function () {
+            if (gameOver) {
+              return;
+            }
+            if (this.innerHTML == "") {
+              this.innerHTML = curPlayer;
+              //   alert(index);
+
+              if (curPlayer == "X") {
+                curPlayer = "O";
+              } else {
+                curPlayer = "X";
+              }
+              what_player_is_it.innerHTML =
+                "It's player " + curPlayer + "'s turn";
+              let moves = [];
+              squares.forEach((square, index) => {
+                if (square.innerHTML == "") {
+                  moves.push("-");
+                } else {
+                  moves.push(square.innerHTML);
+                }
+              });
+
+              let winConditions = [];
+
+              // add horizontal rows
+              for (let i = 0; i < 3; i += 1) {
+                winConditions.push(
+                  moves[3 * i] + moves[3 * i + 1] + moves[3 * i + 2]
+                );
+              }
+              // add vertical columns
+              for (let i = 0; i < 3; i += 1) {
+                winConditions.push(
+                  moves[i] + moves[i + 1 * 3] + moves[i + 2 * 3]
+                );
+              }
+              // add diagnols
+              winConditions.push(moves[0] + moves[4] + moves[8]);
+              winConditions.push(moves[6] + moves[4] + moves[2]);
+              //   console.log(winConditions);
+
+              if (winConditions.includes("OOO")) {
+                // O wins, player must click Play again!
+                what_player_is_it.innerHTML = "O wins!";
+                gameOver = true;
+                squares.forEach(
+                  (square) => (square.style.pointerEvents = "none")
+                );
+              } else if (winConditions.includes("XXX")) {
+                // X wins, player must click Play again!
+                what_player_is_it.innerHTML = "X wins!";
+                gameOver = true;
+                squares.forEach(
+                  (square) => (square.style.pointerEvents = "none")
+                );
+              } else {
+                let stalemate = true;
+                for (let i = 0; i < 9; i += 1) {
+                  if (moves[i] == "-") {
+                    stalemate = false;
+                  }
+                }
+
+                if (stalemate) {
+                  what_player_is_it.innerHTML = "It's a stalemate!";
+                  gameOver = true;
+                  squares.forEach(
+                    (square) => (square.style.pointerEvents = "none")
+                  );
+                }
+              }
+            }
+          });
+        });
+      </script>
+    </div>
+    <button onclick="resetGame()">Play again!</button>
+  </body>
+</html>
